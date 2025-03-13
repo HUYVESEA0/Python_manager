@@ -1,0 +1,212 @@
+{% extends "auth_layout.html" %}
+
+{% block title %}{% if register %}Đăng ký{% else %}Đăng nhập{% endif %} - Python Manager{% endblock %}
+
+{% block content %}
+<div class="container" id="container" {% if register %}class="right-panel-active"{% endif %}>
+    <div class="form-container sign-up-container">
+        <form action="{{ url_for('register') }}" method="POST" id="register-form">
+            <!-- Luôn hiển thị form đăng ký đầy đủ, bất kể đang ở trang nào -->
+            {{ reg_form.csrf_token if reg_form else form.csrf_token }}
+            <h1>Tạo tài khoản</h1>
+            <div class="social-container">
+                <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+                <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <span>hoặc sử dụng email của bạn</span>
+            
+            {% if reg_form %}
+                {{ reg_form.username(placeholder="Username") }}
+                {% for error in reg_form.username.errors %}
+                    <span class="error-message">{{ error }}</span>
+                {% endfor %}
+                
+                {{ reg_form.email(placeholder="Email") }}
+                {% for error in reg_form.email.errors %}
+                    <span class="error-message">{{ error }}</span>
+                {% endfor %}
+                
+                {{ reg_form.password(placeholder="Password") }}
+                {% for error in reg_form.password.errors %}
+                    <span class="error-message">{{ error }}</span>
+                {% endfor %}
+                
+                {{ reg_form.confirm_password(placeholder="Confirm Password") }}
+                {% for error in reg_form.confirm_password.errors %}
+                    <span class="error-message">{{ error }}</span>
+                {% endfor %}
+                
+                {{ reg_form.submit(id="btn_register", value="Đăng ký") }}
+            {% else %}
+                <!-- Trường hợp đang ở trang login, vẫn hiển thị form đăng ký nhưng không hoạt động -->
+                <div class="placeholder-field"><input type="text" placeholder="Username" disabled></div>
+                <div class="placeholder-field"><input type="email" placeholder="Email" disabled></div>
+                <div class="placeholder-field"><input type="password" placeholder="Password" disabled></div>
+                <div class="placeholder-field"><input type="password" placeholder="Confirm Password" disabled></div>
+                <button type="button" class="btn-primary switch-form" data-target="register">Đăng ký tại đây</button>
+            {% endif %}
+        </form>
+    </div>
+    <div class="form-container sign-in-container">
+        <form action="{{ url_for('login') }}" method="POST" id="login-form">
+            <!-- Luôn hiển thị form đăng nhập đầy đủ, bất kể đang ở trang nào -->
+            {{ login_form.csrf_token if login_form else form.csrf_token }}
+            <h1>Đăng nhập</h1>
+            <div class="social-container">
+                <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+                <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <span>hoặc sử dụng tài khoản của bạn</span>
+            
+            {% if login_form or not register %}
+                {{ login_form.email(placeholder="Email") if login_form else form.email(placeholder="Email") }}
+                {% if login_form %}
+                    {% for error in login_form.email.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                {% else %}
+                    {% for error in form.email.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                {% endif %}
+                
+                {{ login_form.password(placeholder="Password") if login_form else form.password(placeholder="Password") }}
+                {% if login_form %}
+                    {% for error in login_form.password.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                {% else %}
+                    {% for error in form.password.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                {% endif %}
+                
+                <div class="remember-me">
+                    {{ login_form.remember_me() if login_form else form.remember_me() }} 
+                    {{ login_form.remember_me.label if login_form else form.remember_me.label }}
+                </div>
+                
+                <a href="#">Quên mật khẩu?</a>
+                {{ login_form.submit(id="btn_login", value="Đăng nhập") if login_form else form.submit(id="btn_login", value="Đăng nhập") }}
+            {% else %}
+                <!-- Trường hợp đang ở trang register, vẫn hiển thị form đăng nhập nhưng không hoạt động -->
+                <div class="placeholder-field"><input type="email" placeholder="Email" disabled></div>
+                <div class="placeholder-field"><input type="password" placeholder="Password" disabled></div>
+                <div class="remember-me">
+                    <input type="checkbox" disabled> <label>Ghi nhớ đăng nhập</label>
+                </div>
+                <button type="button" class="btn-primary switch-form" data-target="login">Đăng nhập tại đây</button>
+            {% endif %}
+        </form>
+    </div>
+    <div class="overlay-container">
+        <div class="overlay">
+            <div class="overlay-panel overlay-left">
+                <h1>Chào mừng trở lại!</h1>
+                <p>Đăng nhập để tiếp tục quản lý dự án Python của bạn</p>
+                <button type="button" class="ghost switch-form" data-target="login">Đăng nhập</button>
+            </div>
+            <div class="overlay-panel overlay-right">
+                <h1>Xin chào!</h1>
+                <p>Đăng ký tài khoản để bắt đầu quản lý dự án Python</p>
+                <button type="button" class="ghost switch-form" data-target="register">Đăng ký</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="display: none;" id="form-loader"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Lấy container và các form
+    const container = document.getElementById('container');
+    const formLoader = document.getElementById('form-loader');
+    
+    // Thiết lập trạng thái ban đầu dựa trên URL
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('register')) {
+        container.classList.add('right-panel-active');
+    } else {
+        container.classList.remove('right-panel-active');
+    }
+    
+    // Lấy tất cả các nút chuyển đổi form và thêm sự kiện click
+    const switchButtons = document.querySelectorAll('.switch-form');
+    switchButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault(); // Ngăn chặn hành động mặc định của nút/link
+            
+            const targetForm = this.getAttribute('data-target');
+            
+            // Thực hiện animation chuyển đổi
+            if (targetForm === 'register') {
+                // Tải form đăng ký qua AJAX nếu chưa có
+                fetchForm('register');
+                container.classList.add('right-panel-active');
+                // Cập nhật URL mà không tải lại trang
+                history.pushState({page: 'register'}, 'Đăng ký - Python Manager', '/register');
+                document.title = 'Đăng ký - Python Manager';
+            } else {
+                // Tải form đăng nhập qua AJAX nếu chưa có
+                fetchForm('login');
+                container.classList.remove('right-panel-active');
+                // Cập nhật URL mà không tải lại trang
+                history.pushState({page: 'login'}, 'Đăng nhập - Python Manager', '/login');
+                document.title = 'Đăng nhập - Python Manager';
+            }
+        });
+    });
+    
+    // Xử lý sự kiện back/forward của trình duyệt
+    window.addEventListener('popstate', function(e) {
+        const currentPath = window.location.pathname;
+        if (currentPath.includes('register')) {
+            fetchForm('register');
+            container.classList.add('right-panel-active');
+            document.title = 'Đăng ký - Python Manager';
+        } else {
+            fetchForm('login');
+            container.classList.remove('right-panel-active');
+            document.title = 'Đăng nhập - Python Manager';
+        }
+    });
+    
+    // Hàm tải form qua AJAX
+    function fetchForm(formType) {
+        // Sử dụng fetch để lấy form mới nhất (bao gồm CSRF token)
+        fetch(`/get-form-data/${formType}`)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Network response was not ok');
+            })
+            .then(data => {
+                if (data.csrf_token) {
+                    // Cập nhật CSRF token cho form tương ứng
+                    const form = document.getElementById(formType === 'login' ? 'login-form' : 'register-form');
+                    const csrfInput = form.querySelector('input[name="csrf_token"]');
+                    if (csrfInput) {
+                        csrfInput.value = data.csrf_token;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching form data:', error);
+            });
+    }
+    
+    // Cải thiện hiệu ứng họat họa với GPU acceleration
+    container.style.willChange = 'transform';
+    document.querySelectorAll('.form-container').forEach(el => {
+        el.style.willChange = 'transform, opacity';
+    });
+    document.querySelector('.overlay').style.willChange = 'transform';
+});
+</script>
+{% endblock %}
