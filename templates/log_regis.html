@@ -7,7 +7,11 @@
     <div class="form-container sign-up-container">
         <form action="{{ url_for('register') }}" method="POST" id="register-form">
             <!-- Luôn hiển thị form đăng ký đầy đủ, bất kể đang ở trang nào -->
-            {{ reg_form.csrf_token if reg_form else form.csrf_token }}
+            {% if reg_form %}
+                {{ reg_form.csrf_token(id="register_csrf_token") }}
+            {% else %}
+                {{ form.csrf_token(id="register_csrf_token") }}
+            {% endif %}
             <h1>Tạo tài khoản</h1>
             <div class="social-container">
                 <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
@@ -17,22 +21,22 @@
             <span>hoặc sử dụng email của bạn</span>
             
             {% if reg_form %}
-                {{ reg_form.username(placeholder="Username") }}
+                {{ reg_form.username(placeholder="Username", id="register_username") }}
                 {% for error in reg_form.username.errors %}
                     <span class="error-message">{{ error }}</span>
                 {% endfor %}
                 
-                {{ reg_form.email(placeholder="Email") }}
+                {{ reg_form.email(placeholder="Email", id="register_email") }}
                 {% for error in reg_form.email.errors %}
                     <span class="error-message">{{ error }}</span>
                 {% endfor %}
                 
-                {{ reg_form.password(placeholder="Password") }}
+                {{ reg_form.password(placeholder="Password", id="register_password") }}
                 {% for error in reg_form.password.errors %}
                     <span class="error-message">{{ error }}</span>
                 {% endfor %}
                 
-                {{ reg_form.confirm_password(placeholder="Confirm Password") }}
+                {{ reg_form.confirm_password(placeholder="Confirm Password", id="register_confirm_password") }}
                 {% for error in reg_form.confirm_password.errors %}
                     <span class="error-message">{{ error }}</span>
                 {% endfor %}
@@ -51,7 +55,11 @@
     <div class="form-container sign-in-container">
         <form action="{{ url_for('login') }}" method="POST" id="login-form">
             <!-- Luôn hiển thị form đăng nhập đầy đủ, bất kể đang ở trang nào -->
-            {{ login_form.csrf_token if login_form else form.csrf_token }}
+            {% if login_form %}
+                {{ login_form.csrf_token(id="login_csrf_token") }}
+            {% else %}
+                {{ form.csrf_token(id="login_csrf_token") }}
+            {% endif %}
             <h1>Đăng nhập</h1>
             <div class="social-container">
                 <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
@@ -61,31 +69,38 @@
             <span>hoặc sử dụng tài khoản của bạn</span>
             
             {% if login_form or not register %}
-                {{ login_form.email(placeholder="Email") if login_form else form.email(placeholder="Email") }}
                 {% if login_form %}
+                    {{ login_form.email(placeholder="Email", id="login_email") }}
                     {% for error in login_form.email.errors %}
                         <span class="error-message">{{ error }}</span>
                     {% endfor %}
                 {% else %}
+                    {{ form.email(placeholder="Email", id="login_email") }}
                     {% for error in form.email.errors %}
                         <span class="error-message">{{ error }}</span>
                     {% endfor %}
                 {% endif %}
                 
-                {{ login_form.password(placeholder="Password") if login_form else form.password(placeholder="Password") }}
                 {% if login_form %}
+                    {{ login_form.password(placeholder="Password", id="login_password") }}
                     {% for error in login_form.password.errors %}
                         <span class="error-message">{{ error }}</span>
                     {% endfor %}
                 {% else %}
+                    {{ form.password(placeholder="Password", id="login_password") }}
                     {% for error in form.password.errors %}
                         <span class="error-message">{{ error }}</span>
                     {% endfor %}
                 {% endif %}
                 
                 <div class="remember-me">
-                    {{ login_form.remember_me() if login_form else form.remember_me() }} 
-                    {{ login_form.remember_me.label if login_form else form.remember_me.label }}
+                    {% if login_form %}
+                        {{ login_form.remember_me(id="login_remember_me") }}
+                        {{ login_form.remember_me.label }}
+                    {% else %}
+                        {{ form.remember_me(id="login_remember_me") }}
+                        {{ form.remember_me.label }}
+                    {% endif %}
                 </div>
                 
                 <a href="#">Quên mật khẩu?</a>
