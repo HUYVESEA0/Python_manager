@@ -538,28 +538,7 @@ button.btn-primary:hover {
     
     /* Ẩn overlay container nhưng thêm nút điều hướng ở cuối form */
     .mobile-nav {
-        display: block;
-        width: 100%;
-        position: absolute;
-        bottom: 20px;
-        left: 0;
-        text-align: center;
-        z-index: 1000;
-    }
-    
-    /* Style nút chuyển đổi */
-    .mobile-nav-button {
-        display: inline-block;
-        background-color: #FF4B2B;
-        color: white;
-        border: none;
-        border-radius: 20px;
-        padding: 10px 25px;
-        font-size: 14px;
-        font-weight: bold;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        margin-top: 15px;
-        cursor: pointer;
+        display: none;
     }
     
     /* Thêm các style để form có thêm khoảng trống ở dưới cho nút điều hướng */
@@ -719,5 +698,33 @@ button.btn-primary:hover {
     .mobile-toggle button.active {
         background-color: #FF4B2B;
         color: white;
+    }
+}
+
+/* Hide mobile navigation by default (for screens > 1024px) */
+.mobile-nav {
+    display: none;
+}
+
+/* Show mobile navigation for screens <= 1024px */
+@media (max-width: 1024px) {
+    .mobile-nav {
+        display: block;
+        width: 100%;
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        text-align: center;
+        z-index: 1000;
+    }
+    
+    /* Thêm các style để form có thêm khoảng trống ở dưới cho nút điều hướng */
+    .form-container form {
+        padding-bottom: 70px;
+    }
+    
+    /* Đảm bảo nút luôn hiển thị trên cùng */
+    .container.right-panel-active .mobile-nav {
+        z-index: 1000;
     }
 }
