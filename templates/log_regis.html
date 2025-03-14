@@ -130,6 +130,13 @@
             </div>
         </div>
     </div>
+    
+    <!-- Thêm nút điều hướng cho màn hình di động -->
+    <div class="mobile-nav">
+        <button type="button" class="mobile-nav-button" id="mobileSwitchButton">
+            {% if register %}đăng nhập{% else %}đăng ký{% endif %}
+        </button>
+    </div>
 </div>
 
 <div style="display: none;" id="form-loader"></div>
@@ -141,13 +148,47 @@ document.addEventListener('DOMContentLoaded', function() {
     // Lấy container và các form
     const container = document.getElementById('container');
     const formLoader = document.getElementById('form-loader');
+    const mobileSwitchButton = document.getElementById('mobileSwitchButton');
     
     // Thiết lập trạng thái ban đầu dựa trên URL
     const currentPath = window.location.pathname;
     if (currentPath.includes('register')) {
         container.classList.add('right-panel-active');
+        if (mobileSwitchButton) {
+            mobileSwitchButton.textContent = 'Chuyển sang đăng nhập';
+            mobileSwitchButton.setAttribute('data-target', 'login');
+        }
     } else {
         container.classList.remove('right-panel-active');
+        if (mobileSwitchButton) {
+            mobileSwitchButton.textContent = 'Chuyển sang đăng ký';
+            mobileSwitchButton.setAttribute('data-target', 'register');
+        }
+    }
+    
+    // Thêm sự kiện cho nút chuyển đổi trên mobile
+    if (mobileSwitchButton) {
+        mobileSwitchButton.addEventListener('click', function() {
+            const targetForm = this.getAttribute('data-target');
+            
+            if (targetForm === 'register') {
+                // Chuyển sang form đăng ký
+                fetchForm('register');
+                container.classList.add('right-panel-active');
+                this.textContent = 'Chuyển sang đăng nhập';
+                this.setAttribute('data-target', 'login');
+                history.pushState({page: 'register'}, 'Đăng ký - Python Manager', '/register');
+                document.title = 'Đăng ký - Python Manager';
+            } else {
+                // Chuyển sang form đăng nhập
+                fetchForm('login');
+                container.classList.remove('right-panel-active');
+                this.textContent = 'Chuyển sang đăng ký';
+                this.setAttribute('data-target', 'register');
+                history.pushState({page: 'login'}, 'Đăng nhập - Python Manager', '/login');
+                document.title = 'Đăng nhập - Python Manager';
+            }
+        });
     }
     
     // Lấy tất cả các nút chuyển đổi form và thêm sự kiện click
@@ -166,6 +207,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Cập nhật URL mà không tải lại trang
                 history.pushState({page: 'register'}, 'Đăng ký - Python Manager', '/register');
                 document.title = 'Đăng ký - Python Manager';
+                // Cập nhật nút mobile nếu có
+                if (mobileSwitchButton) {
+                    mobileSwitchButton.textContent = 'Chuyển sang đăng nhập';
+                    mobileSwitchButton.setAttribute('data-target', 'login');
+                }
             } else {
                 // Tải form đăng nhập qua AJAX nếu chưa có
                 fetchForm('login');
@@ -173,6 +219,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Cập nhật URL mà không tải lại trang
                 history.pushState({page: 'login'}, 'Đăng nhập - Python Manager', '/login');
                 document.title = 'Đăng nhập - Python Manager';
+                // Cập nhật nút mobile nếu có
+                if (mobileSwitchButton) {
+                    mobileSwitchButton.textContent = 'Chuyển sang đăng ký';
+                    mobileSwitchButton.setAttribute('data-target', 'register');
+                }
             }
         });
     });
@@ -184,10 +235,20 @@ document.addEventListener('DOMContentLoaded', function() {
             fetchForm('register');
             container.classList.add('right-panel-active');
             document.title = 'Đăng ký - Python Manager';
+            // Cập nhật nút mobile nếu có
+            if (mobileSwitchButton) {
+                mobileSwitchButton.textContent = 'Chuyển sang đăng nhập';
+                mobileSwitchButton.setAttribute('data-target', 'login');
+            }
         } else {
             fetchForm('login');
             container.classList.remove('right-panel-active');
             document.title = 'Đăng nhập - Python Manager';
+            // Cập nhật nút mobile nếu có
+            if (mobileSwitchButton) {
+                mobileSwitchButton.textContent = 'Chuyển sang đăng ký';
+                mobileSwitchButton.setAttribute('data-target', 'register');
+            }
         }
     });
     

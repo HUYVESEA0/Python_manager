@@ -11,9 +11,10 @@ body {
     align-items: center;
     flex-direction: column;
     font-family: 'Roboto', sans-serif;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
 }
 
 .auth-container {
@@ -145,6 +146,7 @@ input {
     padding: 12px 15px;
     margin: 8px 0;
     width: 100%;
+    border-radius: 5px;
 }
 
 .error-message {
@@ -174,10 +176,11 @@ input {
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
     position: relative;
     overflow: hidden;
-    width: 768px;
-    max-width: 100%;
+    width: 100%;
+    max-width: 768px;
     min-height: 480px;
     margin: 0 auto;
+    display: flex;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     -webkit-transform-style: preserve-3d;
@@ -195,10 +198,9 @@ input {
     will-change: transform, opacity;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
-    -webkit-perspective: 1000px;
-    perspective: 1000px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .sign-in-container {
@@ -208,10 +210,6 @@ input {
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 1;
     visibility: visible;
-    transition: 
-        opacity 0.4s ease-in-out,
-        transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-        visibility 0.4s ease-in-out;
 }
 
 .container.right-panel-active .sign-in-container {
@@ -223,13 +221,12 @@ input {
     width: 50%;
     opacity: 0;
     z-index: 1;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease-in-out;
-    opacity: 1;
-    visibility: visible;
     transition: 
         opacity 0.4s ease-in-out,
         transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
         visibility 0.4s ease-in-out;
+    opacity: 1;
+    visibility: visible;
 }
 
 .container.right-panel-active .sign-up-container {
@@ -262,10 +259,6 @@ input {
     z-index: 100;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
-    -webkit-perspective: 1000px;
-    perspective: 1000px;
 }
 
 .container.right-panel-active .overlay-container {
@@ -287,12 +280,7 @@ input {
     transform: translateX(0);
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
-    -webkit-perspective: 1000px;
-    perspective: 1000px;
+    display: flex;
 }
 
 .container.right-panel-active .overlay {
@@ -313,12 +301,6 @@ input {
     transform: translateX(0);
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
-    -webkit-perspective: 1000px;
-    perspective: 1000px;
 }
 
 .overlay-left {
@@ -406,6 +388,8 @@ footer a {
     transition: transform 80ms ease-in;
     cursor: pointer;
     margin-top: 10px;
+    width: 100%;
+    max-width: 250px;
 }
 
 #btn_login:hover, #btn_register:hover, input[type="submit"]:hover {
@@ -469,19 +453,13 @@ button.ghost:hover {
 .form-container form {
     transition: transform 0.3s ease, opacity 0.3s ease;
     will-change: transform, opacity;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-/* Thêm hiệu ứng fade để chuyển đổi giữa các form mượt hơn */
-.sign-in-container, .sign-up-container {
-    opacity: 1;
-    visibility: visible;
-    transition: 
-        opacity 0.4s ease-in-out,
-        transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-        visibility 0.4s ease-in-out;
-}
-
-/* Đảm bảo CSRF token không gây lỗi layout */
+/* CSRF token không gây lỗi layout */
 input[name="csrf_token"] {
     display: none;
 }
@@ -499,4 +477,247 @@ button.btn-primary {
 
 button.btn-primary:hover {
     background-color: #ff3113;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+    .container {
+        min-height: 650px;
+        margin: 30px auto;
+        flex-direction: column;
+        position: relative;
+    }
+    
+    .form-container {
+        width: 100% !important;
+        position: absolute;
+        height: 100%;
+        transition: all 0.6s ease-in-out;
+    }
+    
+    .sign-in-container {
+        left: 0;
+        width: 100%;
+        z-index: 2;
+    }
+    
+    .sign-up-container {
+        left: 0;
+        width: 100%;
+        opacity: 0;
+        z-index: 1;
+    }
+    
+    .overlay-container {
+        display: none;
+    }
+    
+    .container.right-panel-active .sign-in-container {
+        transform: translateY(-100%);
+    }
+    
+    .container.right-panel-active .sign-up-container {
+        transform: translateY(0);
+        opacity: 1;
+        z-index: 5;
+    }
+    
+    form {
+        padding: 0 30px;
+    }
+    
+    button, .ghost {
+        padding: 10px 30px;
+        font-size: 11px;
+    }
+    
+    #btn_login, #btn_register, input[type="submit"] {
+        padding: 10px 30px;
+        font-size: 11px;
+    }
+    
+    /* Ẩn overlay container nhưng thêm nút điều hướng ở cuối form */
+    .mobile-nav {
+        display: block;
+        width: 100%;
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        text-align: center;
+        z-index: 1000;
+    }
+    
+    /* Style nút chuyển đổi */
+    .mobile-nav-button {
+        display: inline-block;
+        background-color: #FF4B2B;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 25px;
+        font-size: 14px;
+        font-weight: bold;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        margin-top: 15px;
+        cursor: pointer;
+    }
+    
+    /* Thêm các style để form có thêm khoảng trống ở dưới cho nút điều hướng */
+    .form-container form {
+        padding-bottom: 70px;
+    }
+    
+    /* Đảm bảo nút luôn hiển thị trên cùng */
+    .container.right-panel-active .mobile-nav {
+        z-index: 1000;
+    }
+    
+    /* Đảm bảo flash messages hiển thị đúng */
+    .auth-wrapper {
+        width: 100%;
+        padding: 10px;
+    }
+    
+    /* Thêm một thẻ div trống vào cuối form để đảm bảo có đủ khoảng trống cho nút */
+    .form-spacer {
+        height: 70px;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        min-height: 580px;
+        margin: 10px auto;
+    }
+    
+    form {
+        padding: 0 15px;
+    }
+    
+    h1 {
+        font-size: 20px;
+    }
+    
+    p {
+        font-size: 12px;
+        margin: 10px 0 15px;
+    }
+    
+    input {
+        padding: 10px;
+        margin: 6px 0;
+    }
+    
+    .social-container a {
+        height: 30px;
+        width: 30px;
+    }
+    
+    button, .ghost {
+        padding: 8px 20px;
+        font-size: 10px;
+    }
+    
+    #btn_login, #btn_register, input[type="submit"] {
+        padding: 8px 20px;
+        font-size: 10px;
+    }
+    
+    .auth-wrapper {
+        padding: 5px;
+    }
+}
+
+/* Добавим переключатель для мобильных устройств */
+.mobile-toggle {
+    display: none;
+    width: 100%;
+    margin: 10px 0;
+    text-align: center;
+}
+
+.mobile-toggle button {
+    margin: 0 5px;
+    padding: 8px 16px;
+}
+
+@media (max-width: 768px) {
+    .mobile-toggle {
+        display: block;
+    }
+}
+
+/* Добавление флекс-элемента внутри формы для лучшего отображения */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.auth-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Addition for tablets */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        max-width: 90%;
+    }
+    
+    .form-container form {
+        padding: 0 30px;
+    }
+    
+    .overlay-panel {
+        padding: 0 20px;
+    }
+}
+
+/* Переключатель для мобильных устройств - обновленный */
+.mobile-toggle {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-toggle {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+        margin: 10px 0;
+        border-radius: 30px;
+        overflow: hidden;
+        background-color: #f1f1f1;
+        border: 1px solid #ddd;
+    }
+    
+    .mobile-toggle button {
+        flex: 1;
+        margin: 0;
+        padding: 12px 20px;
+        background-color: transparent;
+        border: none;
+        color: #666;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        border-radius: 0;
+    }
+    
+    .mobile-toggle button:first-child {
+        border-right: 1px solid #ddd;
+    }
+    
+    .mobile-toggle button.active {
+        background-color: #FF4B2B;
+        color: white;
+    }
 }
