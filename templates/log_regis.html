@@ -134,7 +134,7 @@
     <!-- Thêm nút điều hướng cho màn hình di động -->
     <div class="mobile-nav">
         <button type="button" class="mobile-nav-button" id="mobileSwitchButton">
-            {% if register %}đăng nhập{% else %}đăng ký{% endif %}
+            {% if register %}Đăng nhập{% else %}ĐĐăng ký{% endif %}
         </button>
     </div>
 </div>
@@ -155,13 +155,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (currentPath.includes('register')) {
         container.classList.add('right-panel-active');
         if (mobileSwitchButton) {
-            mobileSwitchButton.textContent = 'Chuyển sang đăng nhập';
+            mobileSwitchButton.textContent = 'Đăng nhập';
             mobileSwitchButton.setAttribute('data-target', 'login');
         }
     } else {
         container.classList.remove('right-panel-active');
         if (mobileSwitchButton) {
-            mobileSwitchButton.textContent = 'Chuyển sang đăng ký';
+            mobileSwitchButton.textContent = 'Đăng ký';
             mobileSwitchButton.setAttribute('data-target', 'register');
         }
     }
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Chuyển sang form đăng ký
                 fetchForm('register');
                 container.classList.add('right-panel-active');
-                this.textContent = 'Chuyển sang đăng nhập';
+                this.textContent = 'Đăng nhập';
                 this.setAttribute('data-target', 'login');
                 history.pushState({page: 'register'}, 'Đăng ký - Python Manager', '/register');
                 document.title = 'Đăng ký - Python Manager';
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Chuyển sang form đăng nhập
                 fetchForm('login');
                 container.classList.remove('right-panel-active');
-                this.textContent = 'Chuyển sang đăng ký';
+                this.textContent = 'Đăng ký';
                 this.setAttribute('data-target', 'register');
                 history.pushState({page: 'login'}, 'Đăng nhập - Python Manager', '/login');
                 document.title = 'Đăng nhập - Python Manager';
@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.title = 'Đăng ký - Python Manager';
                 // Cập nhật nút mobile nếu có
                 if (mobileSwitchButton) {
-                    mobileSwitchButton.textContent = 'Chuyển sang đăng nhập';
+                    mobileSwitchButton.textContent = 'Đăng nhập';
                     mobileSwitchButton.setAttribute('data-target', 'login');
                 }
             } else {
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.title = 'Đăng nhập - Python Manager';
                 // Cập nhật nút mobile nếu có
                 if (mobileSwitchButton) {
-                    mobileSwitchButton.textContent = 'Chuyển sang đăng ký';
+                    mobileSwitchButton.textContent = 'Đăng ký';
                     mobileSwitchButton.setAttribute('data-target', 'register');
                 }
             }
@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.title = 'Đăng ký - Python Manager';
             // Cập nhật nút mobile nếu có
             if (mobileSwitchButton) {
-                mobileSwitchButton.textContent = 'Chuyển sang đăng nhập';
+                mobileSwitchButton.textContent = 'Đăng nhập';
                 mobileSwitchButton.setAttribute('data-target', 'login');
             }
         } else {
@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.title = 'Đăng nhập - Python Manager';
             // Cập nhật nút mobile nếu có
             if (mobileSwitchButton) {
-                mobileSwitchButton.textContent = 'Chuyển sang đăng ký';
+                mobileSwitchButton.textContent = 'Đăng ký';
                 mobileSwitchButton.setAttribute('data-target', 'register');
             }
         }
