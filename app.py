@@ -23,6 +23,24 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
+# Khởi tạo admin user
+def init_admin_user():
+    with app.app_context():
+        admin = User.query.filter_by(role='admin').first()
+        if not admin:
+            admin = User(
+                username='HUYVIESEA',
+                email='hhuy0847@gmail.com',
+                role='admin'
+            )
+            admin.set_password('huyviesea')
+            db.session.add(admin)
+            db.session.commit()
+            print('Admin created: hhuy0847@gmail.com / huyviesea')
+
+# Gọi hàm khởi tạo admin user
+init_admin_user()
+
 from forms import LoginForm, RegistrationForm
 from decorators import admin_required
 
@@ -247,21 +265,6 @@ def get_form(form_type):
         return render_template('partials/register_form.html', form=form)
     else:
         return '', 404
-
-@app.before_first_request
-def create_tables():
-    # Tạo admin mặc định nếu không có
-    admin = User.query.filter_by(role='admin').first()
-    if not admin:
-        admin = User(
-            username='admin',
-            email='admin@example.com',
-            role='admin'
-        )
-        admin.set_password('admin1234')
-        db.session.add(admin)
-        db.session.commit()
-        print('Admin created: admin@example.com / admin1234')
 
 if __name__ == '__main__':
     app.run(debug=True)
