@@ -65,3 +65,31 @@ class UserEditForm(FlaskForm):
             user = User.query.filter_by(email=email.data).first()
             if user:
                 raise ValidationError('Email already registered. Please use another one.')
+
+class CreateUserForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired(), Length(min=3, max=20)])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    role = SelectField('Role', choices=[('user', 'User'), ('admin', 'Admin')])
+    submit = SubmitField('Create User')
+    
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError('Username already taken. Please choose another one.')
+            
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user:
+            raise ValidationError('Email already registered. Please use another one.')
+
+class SystemSettingsForm(FlaskForm):
+    app_name = StringField('Application Name', validators=[DataRequired(), Length(max=100)])
+    app_description = StringField('Application Description', validators=[Length(max=255)])
+    enable_registration = BooleanField('Enable User Registration')
+    enable_password_reset = BooleanField('Enable Password Reset')
+    items_per_page = SelectField('Items Per Page', 
+                                choices=[(10, '10'), (25, '25'), (50, '50'), (100, '100')],
+                                coerce=int)
+    submit = SubmitField('Save Settings')
