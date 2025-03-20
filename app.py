@@ -24,10 +24,27 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
+# Import thêm decorator mới
+from decorators import admin_required, admin_manager_required
+
 # Khởi tạo admin user
 def init_admin_user():
     with app.app_context():
-        admin = User.query.filter_by(role='admin').first()
+        # Check for admin_manager
+        admin_manager = User.query.filter_by(role='admin_manager').first()
+        if not admin_manager:
+            admin_manager = User(
+                username='ADMIN_MANAGER',
+                email='admin_manager@example.com',
+                role='admin_manager'
+            )
+            admin_manager.set_password('admin_manager')
+            db.session.add(admin_manager)
+            db.session.commit()
+            print('Admin Manager created: admin_manager@example.com / admin_manager')
+            
+        # Check for regular admin
+        admin = User.query.filter_by(username='HUYVIESEA').first()
         if not admin:
             admin = User(
                 username='HUYVIESEA',
@@ -43,7 +60,6 @@ def init_admin_user():
 init_admin_user()
 
 from forms import LoginForm, RegistrationForm, UserEditForm, CreateUserForm, SystemSettingsForm
-from decorators import admin_required
 
 @login_manager.user_loader
 def load_user(id):
@@ -283,12 +299,37 @@ def edit_user(user_id):
 @admin_required
 def make_admin(user_id):
     user = User.query.get_or_404(user_id)
+    
+    # Only admin_manager can promote to admin
+    if not current_user.is_admin_manager() and user.role == 'user':
+        flash('Chỉ Admin Manager mới có thể thăng cấp người dùng lên Admin.', 'danger')
+        return redirect(url_for('admin_users'))
+        
     if user.id != current_user.id:  # Không thay đổi quyền của chính mình
-        user.role = 'admin'
+        # Regular admin can only promote to same level
+        if current_user.is_admin_manager() or user.role == 'user':
+            user.role = 'admin'
+            db.session.commit()
+            # Log the activity
+            log_activity('Make admin', f'User {user.username} (ID: {user.id}) was granted admin privileges')
+            flash(f'User {user.username} đã được cấp quyền quản trị!', 'success')
+        else:
+            flash('Bạn không có quyền thực hiện hành động này.', 'danger')
+    else:
+        flash('Bạn không thể thay đổi quyền của chính mình!', 'danger')
+    return redirect(url_for('admin_users'))
+
+@app.route('/admin/make-admin-manager/<int:user_id>')
+@login_required
+@admin_manager_required
+def make_admin_manager(user_id):
+    user = User.query.get_or_404(user_id)
+    if user.id != current_user.id:  # Không thay đổi quyền của chính mình
+        user.role = 'admin_manager'
         db.session.commit()
         # Log the activity
-        log_activity('Make admin', f'User {user.username} (ID: {user.id}) was granted admin privileges')
-        flash(f'User {user.username} đã được cấp quyền quản trị!', 'success')
+        log_activity('Make admin manager', f'User {user.username} (ID: {user.id}) was granted admin manager privileges')
+        flash(f'User {user.username} đã được cấp quyền quản trị cấp cao!', 'success')
     else:
         flash('Bạn không thể thay đổi quyền của chính mình!', 'danger')
     return redirect(url_for('admin_users'))
@@ -298,6 +339,12 @@ def make_admin(user_id):
 @admin_required
 def remove_admin(user_id):
     user = User.query.get_or_404(user_id)
+    
+    # Only admin_manager can demote another admin_manager
+    if user.role == 'admin_manager' and not current_user.is_admin_manager():
+        flash('Chỉ Admin Manager mới có thể hạ cấp một Admin Manager khác.', 'danger')
+        return redirect(url_for('admin_users'))
+    
     if user.id != current_user.id:  # Không thay đổi quyền của chính mình
         user.role = 'user'
         db.session.commit()
@@ -418,6 +465,14 @@ def clear_logs():
         flash('Confirmation required to clear logs', 'danger')
         
     return redirect(url_for('activity_logs'))
+
+# Add an admin manager only route
+@app.route('/admin/system-operations')
+@login_required
+@admin_manager_required
+def system_operations():
+    """Advanced system operations only available to admin manager"""
+    return render_template('admin/system_operations.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

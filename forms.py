@@ -46,7 +46,11 @@ class RegistrationForm(FlaskForm):
 class UserEditForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=3, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
-    role = SelectField('Role', choices=[('user', 'User'), ('admin', 'Admin')])
+    role = SelectField('Role', choices=[
+        ('user', 'User'), 
+        ('admin', 'Admin'),
+        ('admin_manager', 'Admin Manager')
+    ])
     submit = SubmitField('Update User')
     
     def __init__(self, original_username, original_email, *args, **kwargs):
@@ -71,7 +75,11 @@ class CreateUserForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-    role = SelectField('Role', choices=[('user', 'User'), ('admin', 'Admin')])
+    role = SelectField('Role', choices=[
+        ('user', 'User'), 
+        ('admin', 'Admin'),
+        ('admin_manager', 'Admin Manager')
+    ])
     submit = SubmitField('Create User')
     
     def validate_username(self, username):

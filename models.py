@@ -12,7 +12,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256))
-    role = db.Column(db.String(20), default='user')  # 'admin' hoặc 'user'
+    role = db.Column(db.String(20), default='user')  # 'admin_manager', 'admin', or 'user'
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def set_password(self, password):
@@ -22,7 +22,19 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
         
     def is_admin(self):
-        return self.role == 'admin'
+        return self.role in ['admin', 'admin_manager']
+    
+    def is_admin_manager(self):
+        return self.role == 'admin_manager'
+    
+    def get_role_level(self):
+        """Get numerical representation of role level for comparison"""
+        role_levels = {
+            'admin_manager': 3,
+            'admin': 2,
+            'user': 1
+        }
+        return role_levels.get(self.role, 0)
 
     def __repr__(self):
         return f'<User {self.username}>'

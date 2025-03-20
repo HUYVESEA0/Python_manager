@@ -35,22 +35,46 @@
                                     <td>{{ user.id }}</td>
                                     <td>{{ user.username }}</td>
                                     <td>{{ user.email }}</td>
-                                    <td><span class="badge {% if user.role == 'admin' %}badge-danger{% else %}badge-info{% endif %}">{{ user.role }}</span></td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if user.role == 'admin_manager' %}badge-dark
+                                            {% elif user.role == 'admin' %}badge-danger
+                                            {% else %}badge-info{% endif %}">
+                                            {{ user.role }}
+                                        </span>
+                                    </td>
                                     <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
                                     <td>
                                         <a href="{{ url_for('edit_user', user_id=user.id) }}" class="btn btn-warning btn-sm">
                                             <i class="fas fa-edit"></i> Edit
                                         </a>
                                         {% if user.id != current_user.id %}
-                                            {% if user.role == 'admin' %}
-                                                <a href="{{ url_for('remove_admin', user_id=user.id) }}" class="btn btn-warning btn-sm" onclick="return confirm('Bạn có chắc muốn gỡ bỏ quyền quản trị của {{ user.username }}?')">
-                                                    <i class="fas fa-user-minus"></i> Remove Admin
-                                                </a>
+                                            {% if user.role == 'admin_manager' %}
+                                                {% if current_user.is_admin_manager() %}
+                                                    <a href="{{ url_for('remove_admin', user_id=user.id) }}" class="btn btn-warning btn-sm" onclick="return confirm('Bạn có chắc muốn hạ cấp {{user.username}} xuống thành User không?')">
+                                                        <i class="fas fa-user-minus"></i> Demote to User
+                                                    </a>
+                                                {% endif %}
+                                            {% elif user.role == 'admin' %}
+                                                {% if current_user.is_admin_manager() %}
+                                                    <a href="{{ url_for('make_admin_manager', user_id=user.id) }}" class="btn btn-dark btn-sm" onclick="return confirm('Bạn có chắc muốn thăng cấp {{user.username}} thành Admin Manager không?')">
+                                                        <i class="fas fa-user-shield"></i> Make Admin Manager
+                                                    </a>
+                                                    <a href="{{ url_for('remove_admin', user_id=user.id) }}" class="btn btn-warning btn-sm" onclick="return confirm('Bạn có chắc muốn hạ cấp {{user.username}} xuống thành User không?')">
+                                                        <i class="fas fa-user-minus"></i> Demote to User
+                                                    </a>
+                                                {% endif %}
                                             {% else %}
-                                                <a href="{{ url_for('make_admin', user_id=user.id) }}" class="btn btn-success btn-sm" onclick="return confirm('Bạn có chắc muốn cấp quyền quản trị cho {{ user.username }}?')">
-                                                    <i class="fas fa-user-shield"></i> Make Admin
-                                                </a>
+                                                {% if current_user.is_admin_manager() %}
+                                                    <a href="{{ url_for('make_admin', user_id=user.id) }}" class="btn btn-success btn-sm" onclick="return confirm('Bạn có chắc muốn cấp quyền Admin cho {{user.username}} không?')">
+                                                        <i class="fas fa-user-shield"></i> Make Admin
+                                                    </a>
+                                                    <a href="{{ url_for('make_admin_manager', user_id=user.id) }}" class="btn btn-dark btn-sm" onclick="return confirm('Bạn có chắc muốn cấp quyền Admin Manager cho {{user.username}} không?')">
+                                                        <i class="fas fa-user-tie"></i> Make Admin Manager
+                                                    </a>
+                                                {% endif %}
                                             {% endif %}
+                                            
                                             <a href="{{ url_for('delete_user', user_id=user.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc muốn xóa người dùng {{ user.username }}?')">
                                                 <i class="fas fa-trash"></i> Delete
                                             </a>
