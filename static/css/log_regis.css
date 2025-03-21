@@ -1,3 +1,20 @@
+/* Modern tech-inspired authentication styling for educational platform */
+:root {
+    --primary-color: #3a86ff;
+    --secondary-color: #8338ec;
+    --accent-color: #3a0ca3;
+    --success-color: #38b000;
+    --warning-color: #ffbe0b;
+    --danger-color: #ff006e;
+    --light-bg: #f8f9fa;
+    --dark-bg: #121212;
+    --text-color: #343a40;
+    --text-light: #f8f9fa;
+    --border-radius: 8px;
+    --box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -5,7 +22,7 @@
 }
 
 body {
-    background: #f6f5f7;
+    background: linear-gradient(135deg, #f6f5f7, #e9e9e9);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -15,6 +32,23 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    position: relative;
+}
+
+/* Code-inspired background pattern */
+body:before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+    background-size: 20px 20px;
+    z-index: -1;
 }
 
 .auth-container {
@@ -26,31 +60,71 @@ body {
     align-items: center;
 }
 
+/* Tech-inspired message styling */
 .flash-messages {
     width: 100%;
     margin-bottom: 20px;
+    max-width: 800px;
 }
 
 .flash-message {
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    text-align: center;
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    border-radius: var(--border-radius);
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    animation: slideIn 0.5s ease forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.flash-message:before {
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-right: 10px;
 }
 
 .flash-message.success {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: rgba(56, 176, 0, 0.1);
+    color: var(--success-color);
+    border-left: 4px solid var(--success-color);
+}
+
+.flash-message.success:before {
+    content: '\f00c';
 }
 
 .flash-message.danger {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: rgba(255, 0, 110, 0.1);
+    color: var(--danger-color);
+    border-left: 4px solid var(--danger-color);
+}
+
+.flash-message.danger:before {
+    content: '\f06a';
 }
 
 .flash-message.info {
-    background-color: #d1ecf1;
-    color: #0c5460;
+    background-color: rgba(58, 134, 255, 0.1);
+    color: var(--primary-color);
+    border-left: 4px solid var(--primary-color);
+}
+
+.flash-message.info:before {
+    content: '\f05a';
 }
 
 .home-link {
@@ -59,63 +133,109 @@ body {
 }
 
 .home-link a {
-    color: #FF4B2B;
+    color: var(--accent-color);
     text-decoration: none;
-    font-weight: bold;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: var(--transition);
 }
 
 .home-link a:hover {
-    text-decoration: underline;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1);
+}
+
+.home-link a i {
+    margin-right: 8px;
 }
 
 h1 {
-    font-weight: bold;
-    margin: 0;
-    color: #333;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+    color: var(--accent-color);
+    font-size: 2rem;
 }
 
 h2 {
     text-align: center;
+    color: var(--text-color);
+    margin-bottom: 20px;
 }
 
 p {
-    font-size: 14px;
-    font-weight: 100;
-    line-height: 20px;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.6;
     letter-spacing: 0.5px;
     margin: 20px 0 30px;
+    color: var(--text-color);
 }
 
 span {
-    font-size: 12px;
-    margin-bottom: 10px;
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+    color: #666;
 }
 
 a {
-    color: #333;
-    font-size: 14px;
+    color: var(--primary-color);
+    font-size: 0.9rem;
     text-decoration: none;
     margin: 15px 0;
+    transition: var(--transition);
 }
 
+a:hover {
+    color: var(--secondary-color);
+}
+
+/* Tech-inspired buttons */
 button, .ghost {
-    border-radius: 20px;
-    border: 1px solid #FF4B2B;
-    background-color: #FF4B2B;
-    color: #FFFFFF;
-    font-size: 12px;
-    font-weight: bold;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    color: var(--text-light);
+    font-size: 0.85rem;
+    font-weight: 600;
     padding: 12px 45px;
     letter-spacing: 1px;
     text-transform: uppercase;
-    transition: transform 80ms ease-in;
+    transition: var(--transition);
     cursor: pointer;
     display: inline-block;
     text-align: center;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+button:after, .ghost:after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: rotate(30deg);
+    transition: 0.6s;
+}
+
+button:hover:after, .ghost:hover:after {
+    left: -100%;
+    top: -100%;
 }
 
 button:active, .ghost:active {
-    transform: scale(0.95);
+    transform: scale(0.98);
 }
 
 button:focus, .ghost:focus {
@@ -123,14 +243,39 @@ button:focus, .ghost:focus {
 }
 
 button.ghost, a.ghost {
-    background-color: transparent;
-    border-color: #FFFFFF;
-    color: #FFFFFF;
-    text-decoration: none;
+    background: transparent;
+    border: 2px solid var(--text-light);
+    color: var(--text-light);
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+
+button.ghost:before, a.ghost:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    z-index: -1;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s ease;
+}
+
+button.ghost:hover:before, a.ghost:hover:before {
+    transform: scaleX(1);
+}
+
+button.ghost:hover, a.ghost:hover {
+    color: var(--text-light);
+    border-color: transparent;
 }
 
 form {
-    background-color: #FFFFFF;
+    background-color: white;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -138,47 +283,77 @@ form {
     padding: 0 50px;
     height: 100%;
     text-align: center;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
 }
 
+/* Modern input fields with tech-inspired styling */
 input {
-    background-color: #eee;
-    border: none;
-    padding: 12px 15px;
-    margin: 8px 0;
+    background-color: #f9f9f9;
+    border: 2px solid transparent;
+    padding: 15px;
+    margin: 10px 0;
     width: 100%;
-    border-radius: 5px;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
+input:focus {
+    border-color: var(--primary-color);
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.1);
+    outline: none;
+}
+
+input::placeholder {
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+/* Tech-inspired error messages */
 .error-message {
-    color: #FF4B2B;
-    font-size: 12px;
+    color: var(--danger-color);
+    font-size: 0.8rem;
     margin: -5px 0 5px;
     width: 100%;
     text-align: left;
+    padding-left: 5px;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
 }
 
 .remember-me {
     display: flex;
     align-items: center;
-    margin: 5px 0;
+    margin: 10px 0;
     width: 100%;
+    justify-content: flex-start;
 }
 
 .remember-me input[type="checkbox"] {
     width: auto;
     height: auto;
-    margin-right: 5px;
+    margin-right: 8px;
 }
 
+/* Modern educational tech-inspired container design */
 .container {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.15), 0 10px 10px rgba(0, 0, 0, 0.12);
     position: relative;
     overflow: hidden;
     width: 100%;
     max-width: 768px;
-    min-height: 480px;
+    min-height: 550px;
     margin: 0 auto;
     display: flex;
     -webkit-backface-visibility: hidden;
@@ -247,6 +422,7 @@ input {
     }
 }
 
+/* Tech-inspired overlay styling */
 .overlay-container {
     position: absolute;
     top: 0;
@@ -266,13 +442,10 @@ input {
 }
 
 .overlay {
-    background: #FF416C;
-    background: -webkit-linear-gradient(to right, #FF4B2B, #FF416C);
-    background: linear-gradient(to right, #FF4B2B, #FF416C);
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: 0 0;
-    color: #FFFFFF;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background-size: 200% 200%;
+    animation: gradientBG 15s ease infinite;
+    color: var(--text-light);
     position: relative;
     left: -100%;
     height: 100%;
@@ -281,6 +454,30 @@ input {
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform;
     display: flex;
+}
+
+@keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Add tech pattern to overlay */
+.overlay:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='1.5'/%3E%3Ccircle cx='13' cy='13' r='1.5'/%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
 }
 
 .container.right-panel-active .overlay {
@@ -320,13 +517,14 @@ input {
     transform: translateX(20%);
 }
 
+/* Social media login for educational platform */
 .social-container {
     margin: 20px 0;
     display: flex;
 }
 
 .social-container a {
-    border: 1px solid #DDDDDD;
+    border: 1px solid #ddd;
     border-radius: 50%;
     display: inline-flex;
     justify-content: center;
@@ -334,152 +532,103 @@ input {
     margin: 0 5px;
     height: 40px;
     width: 40px;
+    transition: var(--transition);
+    background-color: white;
 }
 
-footer {
-    background-color: #222;
-    color: #fff;
-    font-size: 14px;
-    bottom: 0;
-    position: fixed;
-    left: 0;
-    right: 0;
-    text-align: center;
-    z-index: 999;
+.social-container a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
 
-footer p {
-    margin: 10px 0;
+.social-container a i {
+    transition: var(--transition);
 }
 
-footer i {
-    color: red;
+.social-container a:nth-child(1):hover {
+    border-color: #3b5998;
+    background-color: #3b5998;
 }
 
-footer a {
-    color: #3c97bf;
-    text-decoration: none;
+.social-container a:nth-child(1):hover i {
+    color: white;
 }
 
-.btn-link {
-    background: none;
-    border: none;
-    color: #FF4B2B;
-    cursor: pointer;
-    padding: 0;
-    font-size: 14px;
-    text-decoration: underline;
+social-container a:nth-child(2):hover {
+    border-color: #db4437;
+    background-color: #db4437;
 }
 
-.btn-link:hover {
-    color: #FF416C;
+.social-container a:nth-child(2):hover i {
+    color: white;
 }
 
+.social-container a:nth-child(3):hover {
+    border-color: #0e76a8;
+    background-color: #0e76a8;
+}
+
+.social-container a:nth-child(3):hover i {
+    color: white;
+}
+
+/* Tech-inspired form buttons */
 #btn_login, #btn_register, input[type="submit"] {
-    border-radius: 20px;
-    border: 1px solid #FF4B2B;
-    background-color: #FF4B2B;
-    color: #FFFFFF;
-    font-size: 12px;
-    font-weight: bold;
+    border-radius: 50px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
     padding: 12px 45px;
     letter-spacing: 1px;
     text-transform: uppercase;
-    transition: transform 80ms ease-in;
+    transition: var(--transition);
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 20px;
     width: 100%;
     max-width: 250px;
+    border: none;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+    position: relative;
+    overflow: hidden;
 }
 
 #btn_login:hover, #btn_register:hover, input[type="submit"]:hover {
-    background-color: #ff3c18;
+    background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+    transform: translateY(-3px);
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
 }
 
-/* Cải thiện hiệu suất animation bằng cách thêm những thuộc tính sau */
-.container, .form-container, .overlay-container, .overlay, .overlay-panel {
-    -webkit-transform: translateZ(0);
-    -moz-transform: translateZ(0);
-    -ms-transform: translateZ(0);
-    -o-transform: translateZ(0);
-    transform: translateZ(0);
-    
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    
-    -webkit-perspective: 1000px;
-    perspective: 1000px;
-}
-
-/* Tối ưu transition */
-.form-container {
+#btn_login:after, #btn_register:after, input[type="submit"]:after {
+    content: '';
     position: absolute;
-    top: 0;
-    height: 100%;
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform, opacity;
-    backface-visibility: hidden;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: rotate(30deg);
+    transition: 0.6s;
 }
 
-/* Làm mượt transitions */
-.overlay {
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
+#btn_login:hover:after, #btn_register:hover:after, input[type="submit"]:hover:after {
+    left: -100%;
+    top: -100%;
 }
 
-/* Thêm thuộc tính cho button để chuyển đổi mượt hơn */
-button.ghost, button.ghost:hover {
-    transition: all 0.3s ease;
-    cursor: pointer;
+/* Educational code editor theme for form containers */
+.form-container::before {
+    content: '/* Authentication Form */';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.7rem;
+    color: #999;
+    opacity: 0.5;
 }
 
-/* Thêm hiệu ứng hover để nút đẹp hơn và responsive */
-button.ghost:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Thêm style cho placeholder-field */
-.placeholder-field {
-    width: 100%;
-    margin: 8px 0;
-}
-
-/* Đảm bảo animation mượt mà hơn */
-.container {
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Tối ưu hóa hiệu năng */
-.form-container form {
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    will-change: transform, opacity;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* CSRF token không gây lỗi layout */
-input[name="csrf_token"] {
-    display: none;
-}
-
-/* Style cho nút chuyển đổi dạng button */
-button.btn-primary {
-    background-color: #FF4B2B;
-    color: #fff;
-    border: none;
-    border-radius: 20px;
-    padding: 10px 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-button.btn-primary:hover {
-    background-color: #ff3113;
-}
-
-/* RESPONSIVE DESIGN */
+/* Responsive design improvements */
 @media (max-width: 768px) {
     .container {
         min-height: 650px;
@@ -528,42 +677,109 @@ button.btn-primary:hover {
     
     button, .ghost {
         padding: 10px 30px;
-        font-size: 11px;
+        font-size: 0.8rem;
     }
     
     #btn_login, #btn_register, input[type="submit"] {
         padding: 10px 30px;
-        font-size: 11px;
+        font-size: 0.8rem;
     }
     
-    /* Ẩn overlay container nhưng thêm nút điều hướng ở cuối form */
+    /* Mobile navigation */
     .mobile-nav {
-        display: none;
-    }
-    
-    /* Thêm các style để form có thêm khoảng trống ở dưới cho nút điều hướng */
-    .form-container form {
-        padding-bottom: 70px;
-    }
-    
-    /* Đảm bảo nút luôn hiển thị trên cùng */
-    .container.right-panel-active .mobile-nav {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        text-align: center;
         z-index: 1000;
     }
     
-    /* Đảm bảo flash messages hiển thị đúng */
+    .mobile-nav-button {
+        padding: 10px 20px;
+        margin: 0 5px;
+        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Form spacer for mobile */
+    .form-spacer {
+        height: 70px;
+        width: 100%;
+    }
+    
     .auth-wrapper {
         width: 100%;
         padding: 10px;
     }
     
-    /* Thêm một thẻ div trống vào cuối form để đảm bảo có đủ khoảng trống cho nút */
-    .form-spacer {
-        height: 70px;
-        width: 100%;
+    h1 {
+        font-size: 1.7rem;
     }
 }
 
+/* Educational theme for mobile toggle */
+.mobile-toggle {
+    display: none;
+    width: 100%;
+    margin: 15px 0;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    padding: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-toggle button {
+    margin: 0 5px;
+    padding: 8px 16px;
+    border-radius: 50px;
+    background: transparent;
+    color: var(--text-color);
+    border: none;
+    transition: var(--transition);
+}
+
+.mobile-toggle button.active {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .mobile-toggle {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* Auth wrapper */
+.auth-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+}
+
+/* Educational and tech-focused animation */
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
+
+/* Educational styling for small screens */
 @media (max-width: 480px) {
     .container {
         min-height: 580px;
@@ -575,156 +791,25 @@ button.btn-primary:hover {
     }
     
     h1 {
-        font-size: 20px;
+        font-size: 1.5rem;
     }
     
     p {
-        font-size: 12px;
+        font-size: 0.9rem;
         margin: 10px 0 15px;
     }
     
     input {
-        padding: 10px;
+        padding: 12px;
         margin: 6px 0;
     }
     
     .social-container a {
-        height: 30px;
-        width: 30px;
-    }
-    
-    button, .ghost {
-        padding: 8px 20px;
-        font-size: 10px;
-    }
-    
-    #btn_login, #btn_register, input[type="submit"] {
-        padding: 8px 20px;
-        font-size: 10px;
+        height: 35px;
+        width: 35px;
     }
     
     .auth-wrapper {
         padding: 5px;
-    }
-}
-
-/* Добавим переключатель для мобильных устройств */
-.mobile-toggle {
-    display: none;
-    width: 100%;
-    margin: 10px 0;
-    text-align: center;
-}
-
-.mobile-toggle button {
-    margin: 0 5px;
-    padding: 8px 16px;
-}
-
-@media (max-width: 768px) {
-    .mobile-toggle {
-        display: block;
-    }
-}
-
-/* Добавление флекс-элемента внутри формы для лучшего отображения */
-.form-group {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    margin-bottom: 10px;
-}
-
-.auth-wrapper {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-    width: 100%;
-    max-width: 100%;
-}
-
-/* Addition for tablets */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .container {
-        max-width: 90%;
-    }
-    
-    .form-container form {
-        padding: 0 30px;
-    }
-    
-    .overlay-panel {
-        padding: 0 20px;
-    }
-}
-
-/* Переключатель для мобильных устройств - обновленный */
-.mobile-toggle {
-    display: none;
-}
-
-@media (max-width: 768px) {
-    .mobile-toggle {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        width: 100%;
-        margin: 10px 0;
-        border-radius: 30px;
-        overflow: hidden;
-        background-color: #f1f1f1;
-        border: 1px solid #ddd;
-    }
-    
-    .mobile-toggle button {
-        flex: 1;
-        margin: 0;
-        padding: 12px 20px;
-        background-color: transparent;
-        border: none;
-        color: #666;
-        font-weight: bold;
-        transition: all 0.3s ease;
-        border-radius: 0;
-    }
-    
-    .mobile-toggle button:first-child {
-        border-right: 1px solid #ddd;
-    }
-    
-    .mobile-toggle button.active {
-        background-color: #FF4B2B;
-        color: white;
-    }
-}
-
-/* Hide mobile navigation by default (for screens > 1024px) */
-.mobile-nav {
-    display: none;
-}
-
-/* Show mobile navigation for screens <= 1024px */
-@media (max-width: 1024px) {
-    .mobile-nav {
-        display: block;
-        width: 100%;
-        position: absolute;
-        bottom: 20px;
-        left: 0;
-        text-align: center;
-        z-index: 1000;
-    }
-    
-    /* Thêm các style để form có thêm khoảng trống ở dưới cho nút điều hướng */
-    .form-container form {
-        padding-bottom: 70px;
-    }
-    
-    /* Đảm bảo nút luôn hiển thị trên cùng */
-    .container.right-panel-active .mobile-nav {
-        z-index: 1000;
     }
 }
