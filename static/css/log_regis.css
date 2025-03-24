@@ -65,6 +65,8 @@ body:before {
     width: 100%;
     margin-bottom: 20px;
     max-width: 800px;
+    position: relative;
+    z-index: 9999; /* Ensure flash messages are always on top */
 }
 
 .flash-message {
@@ -285,6 +287,13 @@ form {
     text-align: center;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 70px; /* Space for mobile button */
 }
 
 /* Modern input fields with tech-inspired styling */
@@ -298,6 +307,7 @@ input {
     font-size: 1rem;
     transition: var(--transition);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    display: block; /* Ensure block display */
 }
 
 input:focus {
@@ -356,35 +366,21 @@ input::placeholder {
     min-height: 550px;
     margin: 0 auto;
     display: flex;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
-    -webkit-perspective: 1000px;
-    perspective: 1000px;
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.6s ease-in-out;
+    /* Simpler transition for better stability */
 }
 
 .form-container {
     position: absolute;
     top: 0;
     height: 100%;
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform, opacity;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    transition: all 0.6s ease-in-out;
+    width: 50%;
 }
 
 .sign-in-container {
     left: 0;
-    width: 50%;
     z-index: 2;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 1;
-    visibility: visible;
 }
 
 .container.right-panel-active .sign-in-container {
@@ -393,33 +389,14 @@ input::placeholder {
 
 .sign-up-container {
     left: 0;
-    width: 50%;
     opacity: 0;
     z-index: 1;
-    transition: 
-        opacity 0.4s ease-in-out,
-        transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-        visibility 0.4s ease-in-out;
-    opacity: 1;
-    visibility: visible;
 }
 
 .container.right-panel-active .sign-up-container {
     transform: translateX(100%);
     opacity: 1;
     z-index: 5;
-    animation: none;
-}
-
-@keyframes show {
-    0%, 49.99% {
-        opacity: 0;
-        z-index: 1;
-    }
-    50%, 100% {
-        opacity: 1;
-        z-index: 5;
-    }
 }
 
 /* Tech-inspired overlay styling */
@@ -430,11 +407,8 @@ input::placeholder {
     width: 50%;
     height: 100%;
     overflow: hidden;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
+    transition: transform 0.6s ease-in-out;
     z-index: 100;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
 }
 
 .container.right-panel-active .overlay-container {
@@ -451,8 +425,7 @@ input::placeholder {
     height: 100%;
     width: 200%;
     transform: translateX(0);
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
+    transition: transform 0.6s ease-in-out;
     display: flex;
 }
 
@@ -554,7 +527,7 @@ input::placeholder {
     color: white;
 }
 
-social-container a:nth-child(2):hover {
+.social-container a:nth-child(2):hover {
     border-color: #db4437;
     background-color: #db4437;
 }
@@ -618,7 +591,7 @@ social-container a:nth-child(2):hover {
 
 /* Educational code editor theme for form containers */
 .form-container::before {
-    content: '/* Authentication Form */';
+    content: '';
     position: absolute;
     top: 10px;
     left: 10px;
@@ -631,29 +604,21 @@ social-container a:nth-child(2):hover {
 /* Responsive design improvements */
 @media (max-width: 768px) {
     .container {
-        min-height: 650px;
-        margin: 30px auto;
-        flex-direction: column;
-        position: relative;
+        min-height: 600px;
     }
     
     .form-container {
-        width: 100% !important;
-        position: absolute;
-        height: 100%;
-        transition: all 0.6s ease-in-out;
+        width: 100%;
     }
     
     .sign-in-container {
-        left: 0;
         width: 100%;
         z-index: 2;
     }
     
     .sign-up-container {
-        left: 0;
-        width: 100%;
         opacity: 0;
+        width: 100%;
         z-index: 1;
     }
     
@@ -663,16 +628,27 @@ social-container a:nth-child(2):hover {
     
     .container.right-panel-active .sign-in-container {
         transform: translateY(-100%);
+        opacity: 0;
+        z-index: 1;
+        pointer-events: none;
     }
     
     .container.right-panel-active .sign-up-container {
         transform: translateY(0);
         opacity: 1;
         z-index: 5;
+        pointer-events: auto;
     }
     
     form {
         padding: 0 30px;
+        overflow-y: auto;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-height: 100%;
+        margin-bottom: 70px; /* Space for mobile button */
     }
     
     button, .ghost {
@@ -691,14 +667,16 @@ social-container a:nth-child(2):hover {
         justify-content: center;
         width: 100%;
         position: absolute;
-        bottom: 20px;
+        bottom: 15px;
         left: 0;
         text-align: center;
         z-index: 1000;
+        padding: 0 15px;
     }
     
     .mobile-nav-button {
         padding: 10px 20px;
+        width: 140px;
         margin: 0 5px;
         background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
         color: white;
@@ -707,6 +685,11 @@ social-container a:nth-child(2):hover {
         font-size: 0.8rem;
         font-weight: 500;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .mobile-nav-button:active {
+        transform: scale(0.95);
     }
     
     /* Form spacer for mobile */
@@ -813,3 +796,207 @@ social-container a:nth-child(2):hover {
         padding: 5px;
     }
 }
+
+/* Fix for placeholder fields in inactive forms */
+.placeholder-field {
+    width: 100%;
+    margin: 10px 0;
+    display: block;
+}
+
+.placeholder-field input {
+    opacity: 0.7;
+    cursor: not-allowed;
+    display: block;
+    width: 100%;
+}
+
+/* Fix initial container state */
+#container.right-panel-active {
+    transform: translateX(0);
+}
+
+/* Fix form height on small screens */
+@media (max-height: 700px) {
+    .container {
+        min-height: 520px;
+    }
+    
+    form {
+        padding: 0 15px;
+    }
+    
+    h1 {
+        margin: 0 0 10px 0;
+        font-size: 1.7rem;
+    }
+    
+    p {
+        margin: 10px 0 20px;
+    }
+    
+    input {
+        padding: 12px;
+        margin: 8px 0;
+    }
+    
+    .social-container {
+        margin: 15px 0;
+    }
+    
+    .social-container a {
+        height: 35px;
+        width: 35px;
+    }
+}
+
+/* Optimize animations for performance */
+@media (prefers-reduced-motion: reduce) {
+    .container, .form-container, .overlay, .overlay-panel {
+        transition: none;
+        animation: none;
+    }
+}
+
+/* Fix form overflow issues */
+.form-container form {
+    max-height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Fix initialization flash */
+.container {
+    opacity: 0;
+    animation: fadeIn 0.3s ease-in forwards;
+    animation-delay: 0.1s;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+/* Optimize animations for performance */
+@media (prefers-reduced-motion: reduce) {
+    .container, .form-container, .overlay, .overlay-panel {
+        transition: none;
+        animation: none;
+    }
+}
+
+/* Fix flash messages z-index */
+.flash-messages {
+    position: relative;
+    z-index: 9999;
+}
+
+/* Ensure forms don't overlap during transitions */
+.form-container.sign-in-container,
+.form-container.sign-up-container {
+    transform-style: flat;
+}
+
+/* Prevent interaction with hidden forms */
+.form-container[style*="visibility: hidden"],
+.form-container:not(.active) {
+    pointer-events: none;
+}
+
+/* Fix for registration form display */
+.sign-up-container form,
+.sign-in-container form {
+    opacity: 1;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Fix for form inputs */
+input {
+    background-color: #f9f9f9;
+    border: 2px solid transparent;
+    padding: 15px;
+    margin: 10px 0;
+    width: 100%;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    display: block; /* Ensure block display */
+}
+
+.placeholder-field input {
+    opacity: 0.7;
+    cursor: not-allowed;
+    display: block;
+    width: 100%;
+}
+
+/* Fix for form initialization */
+#container:not(.right-panel-active) .sign-up-container {
+    display: flex;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+#container.right-panel-active .sign-up-container {
+    display: flex;
+    pointer-events: auto;
+    visibility: visible;
+}
+
+#container.right-panel-active .sign-in-container {
+    display: flex;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+#container:not(.right-panel-active) .sign-in-container {
+    display: flex;
+    pointer-events: auto;
+    visibility: visible;
+}
+
+/* Force opacity and visibility */
+.container.right-panel-active .sign-up-container {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+}
+
+/* Container animation fix */
+.container {
+    opacity: 1;
+    animation: none;
+}
+
+/* Form positioning fixes */
+.form-container form {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0 40px;
+    text-align: center;
+}
+
+/* Fix for registration form display issues */
+.sign-up-container, .sign-in-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Fix for form inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    display: block;
+    width: 100%;
+    margin: 8px 0;
+}
+
+/* Remove duplicate styles that might be causing conflicts */
