@@ -474,5 +474,50 @@ def system_operations():
     """Advanced system operations only available to admin manager"""
     return render_template('admin/system_operations.html')
 
+# Add the search route
+@app.route('/search')
+def search():
+    query = request.args.get('q', '')
+    if not query or len(query) < 2:
+        flash('Please enter at least 2 characters for search', 'warning')
+        return redirect(url_for('index'))
+    
+    # Search in users
+    users = User.query.filter(
+        (User.username.ilike(f'%{query}%')) | 
+        (User.email.ilike(f'%{query}%'))
+    ).all()
+    
+    # Search in activity logs (for admins only)
+    activities = []
+    if current_user.is_authenticated and current_user.is_admin():
+        activities = ActivityLog.query.filter(
+            (ActivityLog.action.ilike(f'%{query}%')) | 
+            (ActivityLog.details.ilike(f'%{query}%'))
+        ).limit(25).all()
+    
+    # Search in system settings (for admins only)
+    settings = []
+    if current_user.is_authenticated and current_user.is_admin():
+        settings = SystemSetting.query.filter(
+            (SystemSetting.key.ilike(f'%{query}%')) | 
+            (SystemSetting.value.ilike(f'%{query}%')) |
+            (SystemSetting.description.ilike(f'%{query}%'))
+        ).all()
+    
+    # Log the search activity
+    if current_user.is_authenticated:
+        log_activity('Search', f'User searched for: {query}')
+    
+    # Check if any results were found
+    results_found = bool(users or activities or settings)
+    
+    return render_template('search_results.html', 
+                          query=query, 
+                          users=users,
+                          activities=activities,
+                          settings=settings,
+                          results_found=results_found)
+
 if __name__ == '__main__':
     app.run(debug=True)
