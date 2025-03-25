@@ -1,26 +1,16 @@
-from flask import request
+from models import ActivityLog, db
 from flask_login import current_user
-from models import db, ActivityLog
+from flask import request
 
-def log_activity(action, details=None, user=None):
-    """
-    Log user activity
-    
-    :param action: Description of the action performed
-    :param details: Additional details about the action (optional)
-    :param user: User who performed the action (defaults to current_user)
-    """
+def log_activity(action, details, user=None):
     if user is None:
         user = current_user if current_user.is_authenticated else None
     
-    log_entry = ActivityLog(
+    log = ActivityLog(
         user_id=user.id if user else None,
         action=action,
         details=details,
         ip_address=request.remote_addr
     )
-    
-    db.session.add(log_entry)
+    db.session.add(log)
     db.session.commit()
-    
-    return log_entry

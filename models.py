@@ -99,6 +99,68 @@ class ActivityLog(db.Model):
     def __repr__(self):
         return f"<ActivityLog {self.action} by {self.user.username if self.user else 'Unknown'} at {self.timestamp}>"
 
+class Course(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    lessons = db.relationship('Lesson', backref='course', lazy=True)
+    enrollments = db.relationship('Enrollment', backref='course', lazy=True)
+
+class Lesson(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
+
+class Enrollment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
+    enrolled_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class LabSession(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    start_time = db.Column(db.DateTime, nullable=False)
+    end_time = db.Column(db.DateTime, nullable=False)
+    location = db.Column(db.String(100), nullable=False)
+    max_students = db.Column(db.Integer, nullable=False)
+    is_active = db.Column(db.Boolean, default=True)
+    verification_code = db.Column(db.String(10), nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    registrations = db.relationship('SessionRegistration', backref='lab_session', lazy=True)
+    entries = db.relationship('LabEntry', backref='lab_session', lazy=True)
+
+    def can_register(self):
+        return self.is_active and self.date >= datetime.utcnow().date() and self.start_time > datetime.utcnow()
+
+    def is_in_progress(self):
+        now = datetime.utcnow()
+        return self.start_time <= now <= self.end_time
+
+    def is_full(self):
+        return len(self.registrations) >= self.max_students
+
+class SessionRegistration(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    session_id = db.Column(db.Integer, db.ForeignKey('lab_session.id'), nullable=False)
+    notes = db.Column(db.Text, nullable=True)
+    attendance_status = db.Column(db.String(20), default='registered')
+    registered_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class LabEntry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    session_id = db.Column(db.Integer, db.ForeignKey('lab_session.id'), nullable=False)
+    check_in_time = db.Column(db.DateTime, default=datetime.utcnow)
+    check_out_time = db.Column(db.DateTime, nullable=True)
+    lab_result = db.Column(db.Text, nullable=True)
+
 def init_app(app):
     # Khởi tạo db với app
     db.init_app(app)

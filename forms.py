@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, TextAreaField, HiddenField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
 from models import User
+from datetime import datetime
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[
@@ -101,3 +102,68 @@ class SystemSettingsForm(FlaskForm):
                                 choices=[(10, '10'), (25, '25'), (50, '50'), (100, '100')],
                                 coerce=int)
     submit = SubmitField('Save Settings')
+
+# New form for session registration
+class SessionRegistrationForm(FlaskForm):
+    session_id = HiddenField('Session ID', validators=[DataRequired()])
+    notes = TextAreaField('Notes (Optional)', validators=[Length(max=500)])
+    submit = SubmitField('Register for Session')
+    
+    def validate_session_id(self, session_id):
+        from models import LabSession, SessionRegistration
+        from flask_login import current_user
+        
+        session = LabSession.query.get(session_id.data)
+        if not session:
+            raise ValidationError('Invalid session selected.')
+        
+        if not session.is_active:
+            raise ValidationError('This session is no longer active.')
+            
+        if session.is_full():
+            raise ValidationError('This session is already full.')
+            
+        if datetime.utcnow() >= session.start_time:
+            raise ValidationError('Registration for this session is closed.')
+            
+        # Check if user is already registered
+        existing_registration = SessionRegistration.query.filter_by(
+            student_id=current_user.id, session_id=session_id.data
+        ).first()
+        
+        if existing_registration:
+            raise ValidationError('You are already registered for this session.')
+
+class LabSessionForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
+    date = StringField('Date', validators=[DataRequired()])
+    start_time = StringField('Start Time', validators=[DataRequired()])
+    end_time = StringField('End Time', validators=[DataRequired()])
+    location = StringField('Location', validators=[DataRequired()])
+    max_students = StringField('Max Students', validators=[DataRequired()])
+    is_active = BooleanField('Is Active')
+    verification_code = StringField('Verification Code')
+    submit = SubmitField('Save')
+
+class LabVerificationForm(FlaskForm):
+    verification_code = StringField('Verification Code', validators=[DataRequired()])
+    submit = SubmitField('Verify')
+
+class LabResultForm(FlaskForm):
+    lab_result = TextAreaField('Lab Result', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+from flask_wtf import FlaskForm
+from wtforms import StringField, TextAreaField, SubmitField
+from wtforms.validators import DataRequired
+
+class CourseForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
+    submit = SubmitField('Save')
+
+class LessonForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    submit = SubmitField('Save')

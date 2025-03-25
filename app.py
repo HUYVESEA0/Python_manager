@@ -1,13 +1,17 @@
-from flask import Flask, render_template, redirect, url_for, flash, request, session
+from flask import Flask, render_template, redirect, url_for, flash, request, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-# Thay thế url_parse bằng url_helpers.url_parse để tương thích hơn
 from werkzeug.urls import url_parse
 import datetime
 import os
+import random
+import string
+import json
+from sqlalchemy import func
 
 # Import models trước khi khởi tạo app
 from models import db, User, SystemSetting, ActivityLog, init_app
+from models import LabSession, SessionRegistration, LabEntry
 from utils import log_activity
 
 app = Flask(__name__)
@@ -34,14 +38,14 @@ def init_admin_user():
         admin_manager = User.query.filter_by(role='admin_manager').first()
         if not admin_manager:
             admin_manager = User(
-                username='ADMIN_MANAGER',
-                email='admin_manager@example.com',
+                username='HUYVIESEA',
+                email='hhuy0847@gmail.comcom',
                 role='admin_manager'
             )
-            admin_manager.set_password('admin_manager')
+            admin_manager.set_password('huyviesea@manager')
             db.session.add(admin_manager)
             db.session.commit()
-            print('Admin Manager created: admin_manager@example.com / admin_manager')
+            print('Admin Manager created: hhuy0847@gmail.comcom / admin_manager')
             
         # Check for regular admin
         admin = User.query.filter_by(username='HUYVIESEA').first()
@@ -51,15 +55,26 @@ def init_admin_user():
                 email='hhuy0847@gmail.com',
                 role='admin'
             )
-            admin.set_password('huyviesea')
+            admin.set_password('huyviesea@admin')
             db.session.add(admin)
             db.session.commit()
             print('Admin created: hhuy0847@gmail.com / huyviesea')
-
+        user = User.query.filter_by(username='HUYVIESEA').first()
+        if not user:
+            user = User(
+                username='HUYVIESEA',
+                email ='hhuy0847@gmail.com',
+                role='user'
+            )
+            user.set_password('huyviesea@user')
+            db.session.add(user)
+            db.session.commit()
+            print('User created: hhuy0847@gmail.com / huyviesea')
 # Gọi hàm khởi tạo admin user
 init_admin_user()
 
 from forms import LoginForm, RegistrationForm, UserEditForm, CreateUserForm, SystemSettingsForm
+from forms import LabSessionForm, SessionRegistrationForm, LabVerificationForm, LabResultForm
 
 @login_manager.user_loader
 def load_user(id):
@@ -518,6 +533,364 @@ def search():
                           activities=activities,
                           settings=settings,
                           results_found=results_found)
+
+# Lab Session routes for students
+@app.route('/lab-sessions')
+@login_required
+def lab_sessions():
+    """View available lab sessions for registration"""
+    # Show only future, active sessions that are not full
+    now = datetime.datetime.now()
+    available_sessions = LabSession.query.filter(
+        LabSession.is_active == True,
+        LabSession.date >= now.date(),
+        LabSession.start_time > now
+    ).order_by(LabSession.date, LabSession.start_time).all()
+    
+    registered_sessions = LabSession.query.join(SessionRegistration).filter(
+        SessionRegistration.student_id == current_user.id
+    ).order_by(LabSession.date, LabSession.start_time).all()
+    
+    return render_template('lab/lab_sessions.html', 
+                           available_sessions=available_sessions,
+                           registered_sessions=registered_sessions)
+
+@app.route('/register-lab-session/<int:session_id>', methods=['GET', 'POST'])
+@login_required
+def register_lab_session(session_id):
+    """Register for a lab session"""
+    lab_session = LabSession.query.get_or_404(session_id)
+    
+    # Check if session is available
+    if not lab_session.can_register():
+        flash('Ca thực hành này không khả dụng cho đăng ký.', 'danger')
+        return redirect(url_for('lab_sessions'))
+    
+    # Check if already registered
+    existing_reg = SessionRegistration.query.filter_by(
+        student_id=current_user.id, session_id=session_id
+    ).first()
+    
+    if existing_reg:
+        flash('Bạn đã đăng ký ca thực hành này.', 'warning')
+        return redirect(url_for('lab_sessions'))
+    
+    form = SessionRegistrationForm()
+    form.session_id.data = session_id
+    
+    if form.validate_on_submit():
+        registration = SessionRegistration(
+            student_id=current_user.id,
+            session_id=session_id,
+            notes=form.notes.data
+        )
+        db.session.add(registration)
+        db.session.commit()
+        
+        log_activity('Lab registration', f'Registered for lab session {lab_session.title}')
+        flash('Đăng ký ca thực hành thành công!', 'success')
+        return redirect(url_for('lab_sessions'))
+    
+    return render_template('lab/register_session.html', form=form, session=lab_session)
+
+@app.route('/my-lab-sessions')
+@login_required
+def my_lab_sessions():
+    """View registered lab sessions"""
+    registered_sessions = LabSession.query.join(SessionRegistration).filter(
+        SessionRegistration.student_id == current_user.id
+    ).order_by(LabSession.date, LabSession.start_time).all()
+    
+    # Get lab entries history
+    lab_history = LabEntry.query.filter_by(
+        student_id=current_user.id
+    ).order_by(LabEntry.check_in_time.desc()).all()
+    
+    return render_template('lab/my_sessions.html', 
+                           sessions=registered_sessions,
+                           lab_history=lab_history)
+
+@app.route('/verify-lab-session/<int:session_id>', methods=['GET', 'POST'])
+@login_required
+def verify_lab_session(session_id):
+    """Verify and check in to a lab session"""
+    lab_session = LabSession.query.get_or_404(session_id)
+    
+    # Check if registered
+    registration = SessionRegistration.query.filter_by(
+        student_id=current_user.id, session_id=session_id
+    ).first_or_404()
+    
+    # Check if session is in progress
+    if not lab_session.is_in_progress():
+        flash('Ca thực hành này hiện không diễn ra.', 'danger')
+        return redirect(url_for('my_lab_sessions'))
+    
+    # Check if already checked in
+    existing_entry = LabEntry.query.filter_by(
+        student_id=current_user.id, 
+        session_id=session_id,
+        check_out_time=None
+    ).first()
+    
+    if existing_entry:
+        return redirect(url_for('lab_session_active', entry_id=existing_entry.id))
+    
+    form = LabVerificationForm()
+    
+    if form.validate_on_submit():
+        if form.verification_code.data == lab_session.verification_code:
+            # Create lab entry
+            entry = LabEntry(
+                student_id=current_user.id,
+                session_id=session_id
+            )
+            db.session.add(entry)
+            
+            # Update registration status
+            registration.attendance_status = 'attended'
+            
+            db.session.commit()
+            
+            log_activity('Lab check-in', f'Checked in to lab session {lab_session.title}')
+            flash('Xác thực thành công! Bạn đã bắt đầu ca thực hành.', 'success')
+            return redirect(url_for('lab_session_active', entry_id=entry.id))
+        else:
+            flash('Mã xác thực không đúng.', 'danger')
+    
+    return render_template('lab/verify_session.html', form=form, session=lab_session)
+
+@app.route('/lab-session-active/<int:entry_id>', methods=['GET', 'POST'])
+@login_required
+def lab_session_active(entry_id):
+    """Active lab session with timer and result submission"""
+    entry = LabEntry.query.filter_by(
+        id=entry_id, student_id=current_user.id
+    ).first_or_404()
+    
+    lab_session = entry.session
+    
+    # Check if already checked out
+    if entry.check_out_time:
+        flash('Ca thực hành này đã kết thúc.', 'info')
+        return redirect(url_for('my_lab_sessions'))
+    
+    form = LabResultForm()
+    
+    if form.validate_on_submit():
+        entry.lab_result = form.lab_result.data
+        entry.check_out_time = datetime.datetime.now()
+        db.session.commit()
+        
+        log_activity('Lab check-out', f'Completed lab session {lab_session.title}')
+        flash('Bạn đã nộp kết quả và kết thúc ca thực hành!', 'success')
+        return redirect(url_for('my_lab_sessions'))
+    
+    # Calculate time remaining
+    now = datetime.datetime.now()
+    time_elapsed = now - entry.check_in_time
+    time_remaining = lab_session.end_time - now if now < lab_session.end_time else datetime.timedelta(0)
+    
+    return render_template('lab/active_session.html', 
+                           entry=entry, 
+                           session=lab_session,
+                           form=form,
+                           time_elapsed=time_elapsed,
+                           time_remaining=time_remaining)
+
+# Teacher routes for lab management
+@app.route('/admin/lab-sessions')
+@login_required
+@admin_required
+def admin_lab_sessions():
+    """Manage lab sessions for teachers"""
+    lab_sessions = LabSession.query.order_by(LabSession.date.desc(), LabSession.start_time).all()
+    return render_template('admin/lab_sessions.html', sessions=lab_sessions)
+
+@app.route('/admin/create-lab-session', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def create_lab_session():
+    """Create a new lab session"""
+    form = LabSessionForm()
+    
+    if form.validate_on_submit():
+        # Generate a verification code if not provided
+        verification_code = form.verification_code.data
+        if not verification_code:
+            verification_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+        
+        # Convert form times to datetime
+        start_datetime = datetime.datetime.combine(form.date.data, form.start_time.data)
+        end_datetime = datetime.datetime.combine(form.date.data, form.end_time.data)
+        
+        lab_session = LabSession(
+            title=form.title.data,
+            description=form.description.data,
+            date=form.date.data,
+            start_time=start_datetime,
+            end_time=end_datetime,
+            location=form.location.data,
+            max_students=form.max_students.data,
+            is_active=form.is_active.data,
+            verification_code=verification_code,
+            created_by=current_user.id
+        )
+        
+        db.session.add(lab_session)
+        db.session.commit()
+        
+        log_activity('Create lab session', f'Created lab session: {form.title.data}')
+        flash(f'Ca thực hành "{form.title.data}" đã được tạo thành công! Mã xác thực: {verification_code}', 'success')
+        return redirect(url_for('admin_lab_sessions'))
+    
+    return render_template('admin/create_lab_session.html', form=form)
+
+@app.route('/admin/edit-lab-session/<int:session_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_lab_session(session_id):
+    """Edit an existing lab session"""
+    lab_session = LabSession.query.get_or_404(session_id)
+    form = LabSessionForm()
+    
+    if form.validate_on_submit():
+        # Convert form times to datetime
+        start_datetime = datetime.datetime.combine(form.date.data, form.start_time.data)
+        end_datetime = datetime.datetime.combine(form.date.data, form.end_time.data)
+        
+        lab_session.title = form.title.data
+        lab_session.description = form.description.data
+        lab_session.date = form.date.data
+        lab_session.start_time = start_datetime
+        lab_session.end_time = end_datetime
+        lab_session.location = form.location.data
+        lab_session.max_students = form.max_students.data
+        lab_session.is_active = form.is_active.data
+        
+        # Update verification code if provided
+        if form.verification_code.data:
+            lab_session.verification_code = form.verification_code.data
+        
+        db.session.commit()
+        
+        log_activity('Edit lab session', f'Updated lab session: {lab_session.title}')
+        flash(f'Ca thực hành "{lab_session.title}" đã được cập nhật!', 'success')
+        return redirect(url_for('admin_lab_sessions'))
+    
+    # Pre-populate form
+    form.title.data = lab_session.title
+    form.description.data = lab_session.description
+    form.date.data = lab_session.date
+    form.start_time.data = lab_session.start_time.time()
+    form.end_time.data = lab_session.end_time.time()
+    form.location.data = lab_session.location
+    form.max_students.data = lab_session.max_students
+    form.is_active.data = lab_session.is_active
+    form.verification_code.data = lab_session.verification_code
+    
+    return render_template('admin/edit_lab_session.html', form=form, session=lab_session)
+
+@app.route('/admin/lab-session-attendees/<int:session_id>')
+@login_required
+@admin_required
+def lab_session_attendees(session_id):
+    """View students registered for a lab session"""
+    lab_session = LabSession.query.get_or_404(session_id)
+    
+    registrations = SessionRegistration.query.filter_by(
+        session_id=session_id
+    ).join(User).order_by(User.username).all()
+    
+    # Get entries for this session
+    entries = LabEntry.query.filter_by(
+        session_id=session_id
+    ).join(User).order_by(LabEntry.check_in_time).all()
+    
+    return render_template('admin/session_attendees.html', 
+                           session=lab_session,
+                           registrations=registrations,
+                           entries=entries)
+
+# Admin manager routes for scheduling
+@app.route('/admin/schedule-lab-sessions')
+@login_required
+@admin_manager_required
+def schedule_lab_sessions():
+    """Schedule lab sessions with minimum student requirements"""
+    # Get sessions with at least 5 registrations
+    valid_sessions = db.session.query(
+        LabSession, func.count(SessionRegistration.id).label('student_count')
+    ).join(SessionRegistration).group_by(LabSession.id).having(
+        func.count(SessionRegistration.id) >= 5
+    ).order_by(LabSession.date, LabSession.start_time).all()
+    
+    # Get sessions with less than 5 registrations
+    pending_sessions = db.session.query(
+        LabSession, func.count(SessionRegistration.id).label('student_count')
+    ).join(SessionRegistration).group_by(LabSession.id).having(
+        func.count(SessionRegistration.id) < 5
+    ).order_by(LabSession.date, LabSession.start_time).all()
+    
+    return render_template('admin/schedule_sessions.html', 
+                           valid_sessions=valid_sessions,
+                           pending_sessions=pending_sessions)
+
+from forms import CourseForm, LessonForm
+from models import Course, Lesson, Enrollment
+
+@app.route('/courses')
+def courses():
+    courses = Course.query.all()
+    return render_template('courses.html', courses=courses)
+
+@app.route('/course/<int:course_id>')
+def course(course_id):
+    course = Course.query.get_or_404(course_id)
+    return render_template('course.html', course=course)
+
+@app.route('/course/new', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def new_course():
+    form = CourseForm()
+    if form.validate_on_submit():
+        course = Course(title=form.title.data, description=form.description.data)
+        db.session.add(course)
+        db.session.commit()
+        flash('Course created successfully!', 'success')
+        return redirect(url_for('courses'))
+    return render_template('create_course.html', form=form)
+
+@app.route('/course/<int:course_id>/edit', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_course(course_id):
+    course = Course.query.get_or_404(course_id)
+    form = CourseForm()
+    if form.validate_on_submit():
+        course.title = form.title.data
+        course.description = form.description.data
+        db.session.commit()
+        flash('Course updated successfully!', 'success')
+        return redirect(url_for('course', course_id=course.id))
+    elif request.method == 'GET':
+        form.title.data = course.title
+        form.description.data = course.description
+    return render_template('create_course.html', form=form)
+
+@app.route('/course/<int:course_id>/lesson/new', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def new_lesson(course_id):
+    form = LessonForm()
+    if form.validate_on_submit():
+        lesson = Lesson(title=form.title.data, content=form.content.data, course_id=course_id)
+        db.session.add(lesson)
+        db.session.commit()
+        flash('Lesson created successfully!', 'success')
+        return redirect(url_for('course', course_id=course_id))
+    return render_template('create_lesson.html', form=form)
 
 if __name__ == '__main__':
     app.run(debug=True)
