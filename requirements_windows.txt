@@ -1,0 +1,19 @@
+# Basic requirements
+flask>=2.0.0
+flask-sqlalchemy>=2.5.0
+flask-login>=0.5.0
+flask-wtf>=1.0.0
+email-validator>=1.1.3
+python-dotenv>=0.19.0
+
+# Development & Debugging
+flask-migrate>=3.0.0
+flask-shell-ipython>=0.4.1
+werkzeug>=2.0.0
+
+# Performance
+flask-caching>=1.10.1
+flask-compress>=1.10.1
+
+# Production ready server
+waitress>=2.1.2

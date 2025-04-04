@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Reset System Settings{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h3>Reset System Settings</h3>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <h4 class="alert-heading">Warning!</h4>
+                <p>You are about to reset all system settings to their default values. This action will:</p>
+                <ul>
+                    <li>Delete all custom configuration settings</li>
+                    <li>Restore default application name, description, and behaviors</li>
+                    <li>Reset all user interface settings</li>
+                </ul>
+                <p>This action cannot be undone.</p>
+                <hr>
+                <p class="mb-0">Are you sure you want to proceed?</p>
+            </div>
+            
+            <form method="POST">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="confirm-reset" name="confirm" value="yes">
+                    <label class="form-check-label" for="confirm-reset">
+                        Yes, I understand the consequences and want to reset all settings
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-danger" id="reset-button" disabled>
+                    Reset Settings
+                </button>
+                <a href="{{ url_for('system_settings') }}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('confirm-reset').addEventListener('change', function() {
+        document.getElementById('reset-button').disabled = !this.checked;
+    });
+</script>
+{% endblock %}

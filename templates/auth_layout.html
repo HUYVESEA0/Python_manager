@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Python Manager - Authentication{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>{% block title %}Python Manager{% endblock %}</title>
+    <!-- Tối ưu tải font-awesome -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" as="style">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" crossorigin="anonymous" />
+    {% block styles %}{% endblock %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/log_regis.css') }}">
     {% block extra_styles %}{% endblock %}
     <style>
@@ -34,6 +34,8 @@
             min-height: 100vh;
             padding: 20px;
             will-change: transform, opacity; /* Tối ưu hiệu năng animation */
+            transform: translateZ(0);
+            backface-visibility: hidden;
         }
         
         .flash-messages {
@@ -92,9 +94,14 @@
         .smooth-transition {
             transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        
+        /* Tối ưu hiệu ứng với GPU acceleration */
+        .auth-wrapper, .form-container, .overlay {
+            will-change: transform, opacity;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
     </style>
-    <!-- Thêm jQuery cho các tính năng nâng cao -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="auth-wrapper">
@@ -115,7 +122,8 @@
         </div>
     </div>
     
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- Sử dụng defer để tối ưu tải trang -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -3,6 +3,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Index
 
 # Khởi tạo db mà không cần tham số app
 db = SQLAlchemy()
@@ -35,6 +36,14 @@ class User(UserMixin, db.Model):
             'user': 1
         }
         return role_levels.get(self.role, 0)
+
+    @property
+    def is_admin_user(self):
+        return self.role in ['admin', 'admin_manager']
+    
+    @property
+    def is_admin_manager_user(self):
+        return self.role == 'admin_manager'
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -161,6 +170,13 @@ class LabEntry(db.Model):
     check_out_time = db.Column(db.DateTime, nullable=True)
     lab_result = db.Column(db.Text, nullable=True)
 
+def create_indexes():
+    # Tạo các index cho các truy vấn phổ biến
+    Index('idx_user_email', User.email)
+    Index('idx_user_role', User.role)
+    Index('idx_activity_timestamp', ActivityLog.timestamp)
+    Index('idx_lab_session_date', LabSession.date)
+
 def init_app(app):
     # Khởi tạo db với app
     db.init_app(app)
@@ -168,3 +184,4 @@ def init_app(app):
     # Tạo context để sử dụng db.create_all() nếu cần
     with app.app_context():
         db.create_all()
+        create_indexes()

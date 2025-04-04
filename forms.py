@@ -103,7 +103,6 @@ class SystemSettingsForm(FlaskForm):
                                 coerce=int)
     submit = SubmitField('Save Settings')
 
-# New form for session registration
 class SessionRegistrationForm(FlaskForm):
     session_id = HiddenField('Session ID', validators=[DataRequired()])
     notes = TextAreaField('Notes (Optional)', validators=[Length(max=500)])
